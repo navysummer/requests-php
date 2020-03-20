@@ -9,7 +9,7 @@ class Request
     /**
      * @var false|resource
      */
-    private $ch,$res,$cookies;
+    private $ch,$res;
 
     function __construct(){
         $this->ch = curl_init();
@@ -32,6 +32,7 @@ class Request
             $output = curl_exec($this->ch);
 
         }elseif ($cookies and !$headers){
+            var_dump($cookies);
             curl_setopt($this->ch,CURLOPT_COOKIE,$cookies);
             $output = curl_exec($this->ch);
 
@@ -47,10 +48,10 @@ class Request
         }
         $info = curl_getinfo($this->ch);
         list($header, $body) = explode("\r\n\r\n", $output);
-        preg_match("/Set\-cookie:([^\r\n]*)/i", $header, $matches);
+        preg_match_all("/Set\-cookie:([^\r\n]*)/i", $header, $matches);
         $result = array(
             'response'=>array(
-                'cookies'=>$matches[1],
+                'cookies'=>implode(';',$matches[1]),
                 'body'=>$body,
                 'header'=>$header,
                 'status_code'=>$info["http_code"]
